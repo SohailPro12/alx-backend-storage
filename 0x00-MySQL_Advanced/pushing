@@ -1,0 +1,4 @@
+#!/bin/bash
+
+COMMIT_NUM=$(($(git rev-list --count HEAD) + 1))
+git add . && git commit -m "task $COMMIT_NUM" && git push
