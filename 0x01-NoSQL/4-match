@@ -1,0 +1,3 @@
+// lists all docs in the collection school
+// with the name="Holberton school"
+db.school.find({ name: "Holberton school" });
