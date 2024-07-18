@@ -4,6 +4,7 @@ exercise.py module
 """
 import redis
 import uuid
+from typing import Union
 
 
 class Cache:
