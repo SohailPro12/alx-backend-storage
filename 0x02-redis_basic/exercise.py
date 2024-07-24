@@ -8,6 +8,26 @@ from typing import Union, Callable, Any
 from functools import wraps
 
 
+def call_history(method: Callable) -> Callable:
+    """
+    track the inputs and the outputs of a function
+    """
+    @wraps(method)
+    def invoker(self, *args, **kwargs) -> Any:
+        """
+        Returns output and input lists
+        """
+        In = '{}:inputs'.format(method.__qualname__)
+        Out = '{}:outputs'.format(method.__qualname__)
+        if isinstance(self._redis, redis.Redis):
+            self._redis.rpush(In, str(args))
+        output = method(self, *args, **kwargs)
+        if isinstance(self._redis, redis.Redis):
+            self._redis.rpush(Out, output)
+        return output
+    return invoker
+
+
 def count_calls(method: Callable) -> Callable:
     """
      count how many times methods of the Cache class are called.
@@ -33,6 +53,7 @@ class Cache:
         self._redis = redis.Redis()
         self._redis.flushdb(True)
 
+    @call_history
     @count_calls
     def store(self, data: Union[str, bytes, int, float]) -> str:
         key = str(uuid.uuid4())
