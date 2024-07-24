@@ -8,6 +8,23 @@ from typing import Union, Callable, Any
 from functools import wraps
 
 
+def replay(fn: Callable):
+    """Display the history of calls of a particular function."""
+    input_key = f"{fn.__qualname__}:inputs"
+    output_key = f"{fn.__qualname__}:outputs"
+
+    inputs = fn.__self__._redis.lrange(input_key, 0, -1)
+    outputs = fn.__self__._redis.lrange(output_key, 0, -1)
+
+    num_calls = len(inputs)
+
+    print(f"{fn.__qualname__} was called {num_calls} times:")
+
+    for input, output in zip(inputs, outputs):
+        print(f"{fn.__qualname__}(*{input.decode('utf-8')},) ->
+                {output.decode('utf-8')}")
+
+
 def call_history(method: Callable) -> Callable:
     """
     track the inputs and the outputs of a function
